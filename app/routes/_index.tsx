@@ -1,4 +1,7 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
+import { drizzle } from "drizzle-orm/d1";
+import { usersTable } from "~/db/schema";
 
 export const meta: MetaFunction = () => {
   return [
@@ -7,7 +10,16 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+export const loader = async ({ context }: LoaderFunctionArgs) => {
+  const db = drizzle(context.cloudflare.env.DB);
+
+  const result = await db.select().from(usersTable);
+
+  return { users: result };
+};
+
 export default function Index() {
+  const data = useLoaderData<typeof loader>();
   return (
     <div className="flex h-screen items-center justify-center">
       <div className="flex flex-col items-center gap-16">
@@ -15,6 +27,7 @@ export default function Index() {
           <h1 className="leading text-2xl font-bold text-gray-800 dark:text-gray-100">
             Welcome to <span className="sr-only">Remix</span>
           </h1>
+          <h2>{JSON.stringify(data)}</h2>
           <div className="h-[144px] w-[434px]">
             <img
               src="/logo-light.png"
