@@ -21,6 +21,7 @@
     "@remix-run/cloudflare": "^2.15.1",
     "@remix-run/cloudflare-pages": "^2.15.1",
     "@remix-run/react": "^2.15.1",
+    "clsx": "^2.1.1",
     "drizzle-orm": "^0.38.3",
     "isbot": "^4.1.0",
     "react": "^18.2.0",
