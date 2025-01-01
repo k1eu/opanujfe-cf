@@ -32,8 +32,8 @@ export default function TodoDetail() {
 
   return (
     <div className="max-w-2xl mx-auto p-6">
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h1 className="text-2xl font-bold mb-4 text-gray-700">{todo.title}</h1>
+      <div className="bg-gray-800 rounded-lg shadow-lg p-6">
+        <h1 className="text-2xl font-bold mb-4 text-white">{todo.title}</h1>
         {imageUrl && (
           <div className="mb-4">
             <img
@@ -46,22 +46,22 @@ export default function TodoDetail() {
 
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-700">Description</h2>
-            <p className="text-gray-600">
+            <h2 className="text-lg font-semibold text-white">Description</h2>
+            <p className="text-gray-400">
               {todo.description || "No description provided"}
             </p>
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold text-gray-700">Status</h2>
+            <h2 className="text-lg font-semibold text-white">Status</h2>
             <span
               className={`inline-block px-3 py-1 rounded-full text-sm ${
                 todo.completed
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-800"
+                  ? "bg-green-500 text-white"
+                  : "bg-yellow-500 text-white"
               }`}
             >
-              {todo.completed ? "Completed" : "todo"}
+              {todo.completed ? "Completed" : "Pending"}
             </span>
           </div>
         </div>
