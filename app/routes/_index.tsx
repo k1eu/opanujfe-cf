@@ -4,7 +4,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/cloudflare";
-import { Form, useFetcher, useLoaderData } from "@remix-run/react";
+import { Form, useFetcher, useLoaderData, Link } from "@remix-run/react";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { useState } from "react";
@@ -250,14 +250,15 @@ export function TodoItem({ todo }: { todo: typeof todosTable.$inferSelect }) {
             />
             <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
-                <span
+                <Link
+                  to={`/todos/${todo.id}`}
                   className={cx(
-                    "text-xl",
+                    "text-xl hover:text-blue-400 transition-colors",
                     todo.completed ? "text-gray-400 line-through" : "text-white"
                   )}
                 >
                   {todo.title}
-                </span>
+                </Link>
                 <div className="flex gap-2 ml-auto">
                   <button
                     onClick={() => setIsEditing(true)}
