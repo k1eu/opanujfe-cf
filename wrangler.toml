@@ -19,6 +19,9 @@ bucket_name = "opanujfe-images"
 binding = "kv"
 id = "f77b1f2b4a884b25ab8401a14a304ede"
 
+[ai]
+binding = "AI"
+
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Pages Function, running it closer to your back-end infrastructure
 # rather than the end user may result in better performance.

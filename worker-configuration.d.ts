@@ -4,4 +4,5 @@ interface Env {
 	kv: KVNamespace;
 	IMAGES: R2Bucket;
 	DB: D1Database;
+	AI: Ai;
 }

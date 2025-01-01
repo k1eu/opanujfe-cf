@@ -93,6 +93,7 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
       const kvClient = createKvClient(context);
 
       try {
+        console.info("DELETING CACHE for TODO_ID", id);
         await kvClient.delete(id as string);
       } catch (error) {
         // we don't care if it fails

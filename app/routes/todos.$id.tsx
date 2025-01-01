@@ -1,5 +1,5 @@
-import { LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import { eq } from "drizzle-orm";
 import { createDbClient, createKvClient } from "~/db/client";
 import { todosTable } from "~/db/schema";
@@ -17,11 +17,12 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
 
   if (todoString) {
     const todo = JSON.parse(todoString);
-
-    console.log({ todoString });
+    console.info("CACHE HIT", todoId);
 
     return { todo };
   }
+
+  console.info("CACHE MISS", todoId);
 
   const db = createDbClient(context);
 
@@ -40,8 +41,30 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
   return { todo: todo[0] };
 }
 
+export const action = async ({ request, context }: ActionFunctionArgs) => {
+  const formData = await request.formData();
+  const title = formData.get("title");
+  const description = formData.get("description");
+
+  const ai = context.cloudflare.env.AI;
+
+  const result = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+    prompt: `Summerize this todo: ${title} ${description}`,
+  });
+
+  // @ts-expect-error types
+  const response = result.response;
+
+  console.log(result, response);
+
+  return { summary: response };
+};
+
 export default function TodoDetail() {
   const { todo } = useLoaderData<typeof loader>();
+  const fetcher = useFetcher<typeof action>();
+
+  const data = fetcher.data;
 
   const imageUrl = todo.imageKey ? `/api/images/${todo.imageKey}` : null;
 
@@ -49,6 +72,7 @@ export default function TodoDetail() {
     <div className="max-w-2xl mx-auto p-6">
       <div className="bg-gray-800 rounded-lg shadow-lg p-6">
         <h1 className="text-2xl font-bold mb-4 text-white">{todo.title}</h1>
+
         {imageUrl && (
           <div className="mb-4">
             <img
@@ -78,6 +102,17 @@ export default function TodoDetail() {
             >
               {todo.completed ? "Completed" : "Pending"}
             </span>
+            <fetcher.Form method="post">
+              <input type="hidden" name="title" value={todo.title} />
+              <input
+                type="hidden"
+                name="description"
+                value={todo.description}
+              />
+              <button type="submit">Summarize</button>
+            </fetcher.Form>
+            {fetcher.state === "submitting" && <p>Summarizing...</p>}
+            {data && <p>{data.summary}</p>}
           </div>
         </div>
       </div>
