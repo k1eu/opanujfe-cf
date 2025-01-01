@@ -10,6 +10,8 @@ export const usersTable = sqliteTable("users", {
 export const todosTable = sqliteTable("todos", {
   id: int().primaryKey({ autoIncrement: true }),
   title: text().notNull(),
+  description: text().notNull().default(""),
+  imageKey: text(),
   completed: int({
     mode: "boolean",
   })
