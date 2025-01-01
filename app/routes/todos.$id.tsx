@@ -1,16 +1,29 @@
 import { LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { eq } from "drizzle-orm";
-import { createDbClient } from "~/db/client";
+import { createDbClient, createKvClient } from "~/db/client";
 import { todosTable } from "~/db/schema";
 
 export async function loader({ params, context }: LoaderFunctionArgs) {
   const todoId = params.id;
-  const db = createDbClient(context);
+
+  const kv = createKvClient(context);
 
   if (!todoId) {
     throw new Response("Not Found", { status: 404 });
   }
+
+  const todoString = await kv.get(todoId);
+
+  if (todoString) {
+    const todo = JSON.parse(todoString);
+
+    console.log({ todoString });
+
+    return { todo };
+  }
+
+  const db = createDbClient(context);
 
   const todo = await db
     .select()
@@ -21,6 +34,8 @@ export async function loader({ params, context }: LoaderFunctionArgs) {
   if (!todo || todo.length === 0) {
     throw new Response("Todo not found", { status: 404 });
   }
+
+  await kv.put(todoId, JSON.stringify(todo[0]));
 
   return { todo: todo[0] };
 }

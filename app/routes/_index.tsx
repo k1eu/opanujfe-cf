@@ -12,6 +12,7 @@ import { todosTable } from "~/db/schema";
 import { clsx, type ClassArray } from "clsx";
 import { parseFormData } from "@mjackson/form-data-parser";
 import { R2FileStorage } from "@edgefirst-dev/r2-file-storage";
+import { createKvClient } from "~/db/client";
 
 function cx(...classes: ClassArray) {
   return clsx(classes);
@@ -88,6 +89,15 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
           imageKey,
         })
         .where(eq(todosTable.id, Number(id)));
+
+      const kvClient = createKvClient(context);
+
+      try {
+        await kvClient.delete(id as string);
+      } catch (error) {
+        // we don't care if it fails
+      }
+
       break;
     default:
       throw new Error("Invalid action");
