@@ -177,72 +177,78 @@ export function TodoItem({ todo }: { todo: typeof todosTable.$inferSelect }) {
     <li className="bg-gray-800 rounded-lg p-4 shadow-lg">
       <div className="flex gap-4">
         {isEditing ? (
-          <label className="cursor-pointer group relative w-16 h-16">
+          <fetcher.Form
+            method="post"
+            encType="multipart/form-data"
+            className="space-y-3 w-full"
+          >
+            <div className="flex gap-4">
+              <div className="flex-shrink-0">
+                <label className="cursor-pointer group relative w-16 h-16 block">
+                  <img
+                    className="w-16 h-16 rounded-lg object-cover group-hover:opacity-50 transition-opacity"
+                    src={fileUrl}
+                    alt={todo.title}
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span className="text-white text-sm">Change</span>
+                  </div>
+                  <input
+                    type="file"
+                    name="image"
+                    className="hidden"
+                    onChange={(e) => setPickedFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+              </div>
+
+              <div className="flex-1 space-y-2">
+                <input type="hidden" name="id" value={todo.id} />
+                <div>
+                  <input
+                    disabled={fetcher.state === "submitting"}
+                    type="text"
+                    name="title"
+                    defaultValue={todo.title}
+                    className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <textarea
+                    disabled={fetcher.state === "submitting"}
+                    name="description"
+                    defaultValue={todo.description || ""}
+                    rows={3}
+                    className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditing(false);
+                      setPickedFile(null);
+                    }}
+                    className="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
+                    Save
+                  </button>
+                </div>
+                <input type="hidden" name="action" value="update" />
+              </div>
+            </div>
+          </fetcher.Form>
+        ) : (
+          <>
             <img
-              className="w-16 h-16 rounded-lg object-cover group-hover:opacity-50 transition-opacity"
-              src={fileUrl}
+              className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
+              src={`/api/images/${todo.imageKey}`}
               alt={todo.title}
             />
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              <span className="text-white text-sm">Change</span>
-            </div>
-            <input
-              type="file"
-              name="image"
-              className="hidden"
-              onChange={(e) => setPickedFile(e.target.files?.[0] || null)}
-            />
-          </label>
-        ) : (
-          <img
-            className="w-16 h-16 rounded-lg object-cover"
-            src={`/api/images/${todo.imageKey}`}
-            alt={todo.title}
-          />
-        )}
-
-        <div className="flex-1 space-y-2">
-          {isEditing ? (
-            <fetcher.Form
-              method="post"
-              encType="multipart/form-data"
-              className="space-y-3"
-            >
-              <input type="hidden" name="id" value={todo.id} />
-              <div>
-                <input
-                  disabled={fetcher.state === "submitting"}
-                  type="text"
-                  name="title"
-                  defaultValue={todo.title}
-                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <textarea
-                  disabled={fetcher.state === "submitting"}
-                  name="description"
-                  defaultValue={todo.description || ""}
-                  rows={3}
-                  className="w-full px-3 py-2 bg-gray-700 rounded border border-gray-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsEditing(false)}
-                  className="px-3 py-1 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors">
-                  Save
-                </button>
-              </div>
-              <input type="hidden" name="action" value="update" />
-            </fetcher.Form>
-          ) : (
-            <>
+            <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
                 <span
                   className={cx(
@@ -271,9 +277,9 @@ export function TodoItem({ todo }: { todo: typeof todosTable.$inferSelect }) {
               {todo.description && (
                 <p className="text-gray-400 text-sm mt-1">{todo.description}</p>
               )}
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </li>
   );
