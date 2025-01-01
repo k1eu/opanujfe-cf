@@ -18,6 +18,9 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
+    "@edgefirst-dev/r2-file-storage": "^1.0.2",
+    "@mjackson/file-storage": "^0.3.0",
+    "@mjackson/form-data-parser": "^0.5.1",
     "@remix-run/cloudflare": "^2.15.1",
     "@remix-run/cloudflare-pages": "^2.15.1",
     "@remix-run/react": "^2.15.1",

@@ -11,6 +11,10 @@ database_name = "opanujefe-d1database"
 database_id = "e9290027-21d2-4d88-8f35-fac8e7b6a715"
 migrations_dir = "drizzle"
 
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "opanujfe-images"
+
 # Automatically place your workloads in an optimal location to minimize latency.
 # If you are running back-end logic in a Pages Function, running it closer to your back-end infrastructure
 # rather than the end user may result in better performance.
