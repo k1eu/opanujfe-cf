@@ -10,9 +10,18 @@ import { drizzle } from "drizzle-orm/d1";
 import { useState } from "react";
 import { todosTable } from "~/db/schema";
 import { clsx, type ClassArray } from "clsx";
+import { parseFormData } from "@mjackson/form-data-parser";
+import { R2FileStorage } from "@edgefirst-dev/r2-file-storage";
 
 function cx(...classes: ClassArray) {
   return clsx(classes);
+}
+
+export function createFileStorage(
+  context: LoaderFunctionArgs["context"] | ActionFunctionArgs["context"]
+) {
+  // @ts-expect-error types
+  return new R2FileStorage(context.cloudflare.env.IMAGES);
 }
 
 export const meta: MetaFunction = () => {
@@ -33,9 +42,20 @@ export const loader = async ({ context }: LoaderFunctionArgs) => {
 export const action = async ({ request, context }: ActionFunctionArgs) => {
   const db = drizzle(context.cloudflare.env.DB);
 
-  const formData = await request.formData();
+  let imageKey = null;
+
+  const formData = await parseFormData(request, async (file) => {
+    if (file.fieldName === "image") {
+      const key = `${Date.now()}-${file.name}`;
+      await createFileStorage(context).set(key, file);
+      imageKey = key;
+      return key;
+    }
+  });
+
   const action = formData.get("action");
   const title = formData.get("title");
+  const description = formData.get("description");
   const id = formData.get("id");
 
   switch (action) {
@@ -47,7 +67,11 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
       await db.delete(todosTable).where(eq(todosTable.id, Number(id)));
       break;
     case "add":
-      await db.insert(todosTable).values({ title: title as string });
+      await db.insert(todosTable).values({
+        title: title as string,
+        description: description as string,
+        imageKey,
+      });
       break;
     case "update":
       if (!id) {
@@ -97,8 +121,10 @@ function TodoList({ todos }: { todos: (typeof todosTable.$inferSelect)[] }) {
   return (
     <ul>
       <li>
-        <Form method="post">
+        <Form method="post" encType="multipart/form-data">
           <input type="text" name="title" />
+          <textarea name="description" />
+          <input type="file" name="image" />
           <input type="hidden" name="action" value="add" />
           <button>Add</button>
         </Form>
@@ -113,8 +139,14 @@ function TodoList({ todos }: { todos: (typeof todosTable.$inferSelect)[] }) {
 export function TodoItem({ todo }: { todo: typeof todosTable.$inferSelect }) {
   const [isEditing, setIsEditing] = useState(false);
   const fetcher = useFetcher();
+
   return (
     <li>
+      <img
+        className="w-16 h-16"
+        src={`/api/images/${todo.imageKey}`}
+        alt={todo.title}
+      />
       {isEditing ? null : (
         <span
           className={cx(
