@@ -14,7 +14,7 @@
     "preview": "pnpm run build && wrangler pages dev",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "wrangler d1 migrations apply opanujefe-d1database --local",
-    "db:migrate-prod": "drizzle-kit migrate",
+    "db:migrate-prod": "wrangler d1 migrations apply opanujefe-d1database --remote",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
