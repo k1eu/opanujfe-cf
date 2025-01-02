@@ -103,11 +103,17 @@ export default function TodoDetail() {
               {todo.completed ? "Completed" : "Pending"}
             </span>
             <fetcher.Form method="post">
-              <input type="hidden" name="title" value={todo.title} />
+              <input
+                type="hidden"
+                name="title"
+                value={todo.title}
+                defaultValue={todo.title}
+              />
               <input
                 type="hidden"
                 name="description"
                 value={todo.description}
+                defaultValue={todo.description}
               />
               <button type="submit">Summarize</button>
             </fetcher.Form>

@@ -48,13 +48,14 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   let imageKey = null;
 
   const formData = await parseFormData(request, async (file) => {
-    if (file.fieldName === "image") {
+    if (file.fieldName === "image" && file.name) {
       const key = `${Date.now()}-${file.name}`;
       await createFileStorage(context).set(key, file);
       imageKey = key;
       return key;
     }
   });
+
 
   const action = formData.get("action");
   const title = formData.get("title");
@@ -81,12 +82,14 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
         throw new Error("No id provided");
       }
 
+      console.log(imageKey);
+
       await db
         .update(todosTable)
         .set({
           title: title as string,
           description: description as string,
-          imageKey,
+          ...(imageKey ? { imageKey } : {}),
         })
         .where(eq(todosTable.id, Number(id)));
 
