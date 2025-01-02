@@ -47,15 +47,26 @@ export const action = async ({ request, context }: ActionFunctionArgs) => {
   const description = formData.get("description");
 
   const ai = context.cloudflare.env.AI;
+  const kv = createKvClient(context);
+
+  const prompt = `Summerize this todo: ${title} ${description}`;
+
+  const cacheResult = await kv.get(prompt);
+
+  if (cacheResult) {
+    return { summary: cacheResult };
+  }
 
   const result = await ai.run("@cf/meta/llama-3.1-8b-instruct", {
-    prompt: `Summerize this todo: ${title} ${description}`,
+    prompt,
   });
 
   // @ts-expect-error types
   const response = result.response;
 
   console.log(result, response);
+
+  await kv.put(prompt, response);
 
   return { summary: response };
 };
